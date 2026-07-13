@@ -15,6 +15,12 @@ export default function DocumentsPage() {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [loadingAnswer, setLoadingAnswer] = useState(false);
+  
+  const [quiz, setQuiz] = useState("");
+  const [loadingQuiz, setLoadingQuiz] = useState(false);
+
+  const [interview, setInterview] = useState("");
+  const [loadingInterview, setLoadingInterview] = useState(false);
 
   const fetchFiles = async () => {
     try {
@@ -360,27 +366,112 @@ className="w-full rounded-lg bg-green-600 py-3 text-white hover:bg-green-700 dis
     </div>
   </div>
 )}
+{quiz && (
+  <div className="mt-4 rounded-xl border border-orange-200 bg-orange-50 p-4">
+    <h3 className="mb-2 text-lg font-bold text-orange-700">
+      📝 AI Quiz
+    </h3>
 
+    <div className="whitespace-pre-wrap text-gray-700">
+      {quiz}
+    </div>
+  </div>
+)}
+{interview && (
+  <div className="mt-4 rounded-xl border border-pink-200 bg-pink-50 p-4">
+    <h3 className="mb-2 text-lg font-bold text-pink-700">
+      🎤 AI Interview Questions
+    </h3>
+
+    <div className="whitespace-pre-wrap text-gray-700">
+      {interview}
+    </div>
+  </div>
+)}
 {/* Generate Quiz */}
 
 <button
-  className="w-full rounded-lg bg-orange-500 py-3 text-white hover:bg-orange-600"
-  onClick={() => {
-    toast("🚀 Quiz feature coming soon!");
+  disabled={loadingQuiz}
+  className="w-full rounded-lg bg-orange-500 py-3 text-white hover:bg-orange-600 disabled:bg-gray-400"
+  onClick={async () => {
+    if (!selectedFile) {
+      toast.error("Please select a PDF first.");
+      return;
+    }
+
+    try {
+      setLoadingQuiz(true);
+
+      const res = await fetch("/api/quiz", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fileName: selectedFile,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setQuiz(data.quiz);
+        toast.success("Quiz generated!");
+      } else {
+        toast.error(data.error);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to generate quiz.");
+    } finally {
+      setLoadingQuiz(false);
+    }
   }}
 >
-  📝 Generate Quiz
+  {loadingQuiz ? "Generating..." : "📝 Generate Quiz"}
 </button>
 
 {/* Interview Questions */}
 
 <button
-  className="w-full rounded-lg bg-pink-600 py-3 text-white hover:bg-pink-700"
-  onClick={() => {
-    toast("🚀 Interview Questions coming soon!");
+  disabled={loadingInterview}
+  className="w-full rounded-lg bg-pink-600 py-3 text-white hover:bg-pink-700 disabled:bg-gray-400"
+  onClick={async () => {
+    if (!selectedFile) {
+      toast.error("Please select a PDF first.");
+      return;
+    }
+
+    try {
+      setLoadingInterview(true);
+
+      const res = await fetch("/api/interview", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fileName: selectedFile,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setInterview(data.interview);
+        toast.success("Interview questions generated!");
+      } else {
+        toast.error(data.error);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to generate interview questions.");
+    } finally {
+      setLoadingInterview(false);
+    }
   }}
 >
-  🎤 Interview Questions
+  {loadingInterview ? "Generating..." : "🎤 Interview Questions"}
 </button>
 
 </div>
