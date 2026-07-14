@@ -1,6 +1,6 @@
 export default function Hero() {
   return (
-    <section className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-white via-blue-50 to-white px-6 text-center">
+    <section id="home" className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b ...">
       {/* Badge */}
       <span className="rounded-full bg-blue-100 px-4 py-2 text-sm font-semibold text-blue-600">
         🚀 Meet Your AI Mentor

@@ -181,14 +181,14 @@ export default function DocumentsPage() {
                   🤖 AI Summary
                 </h3>
 
-                <div className="whitespace-pre-wrap text-gray-700">
-                  {summary}
+                <div className="max-h-96 overflow-y-auto whitespace-pre-wrap text-gray-700">
+                {summary}
                 </div>
               </div>
-            )}
+                )}
 
-          </div>
-                    {/* Recent Files */}
+              </div>
+            {/* Recent Files */}
 
           <div className="rounded-2xl bg-white p-6 shadow-sm">
 
@@ -361,10 +361,10 @@ className="w-full rounded-lg bg-green-600 py-3 text-white hover:bg-green-700 dis
       🤖 AI Answer
     </h3>
 
-    <div className="whitespace-pre-wrap text-gray-700">
-      {answer}
+    <div className="max-h-96 overflow-y-auto whitespace-pre-wrap text-gray-700">
+    {answer}
     </div>
-  </div>
+    </div>
 )}
 {quiz && (
   <div className="mt-4 rounded-xl border border-orange-200 bg-orange-50 p-4">
@@ -372,10 +372,10 @@ className="w-full rounded-lg bg-green-600 py-3 text-white hover:bg-green-700 dis
       📝 AI Quiz
     </h3>
 
-    <div className="whitespace-pre-wrap text-gray-700">
+    <div className="max-h-96 overflow-y-auto whitespace-pre-wrap text-gray-700">
       {quiz}
     </div>
-  </div>
+    </div>
 )}
 {interview && (
   <div className="mt-4 rounded-xl border border-pink-200 bg-pink-50 p-4">
@@ -383,10 +383,10 @@ className="w-full rounded-lg bg-green-600 py-3 text-white hover:bg-green-700 dis
       🎤 AI Interview Questions
     </h3>
 
-    <div className="whitespace-pre-wrap text-gray-700">
-      {interview}
+    <div className="max-h-96 overflow-y-auto whitespace-pre-wrap text-gray-700">
+    {interview}
     </div>
-  </div>
+    </div>
 )}
 {/* Generate Quiz */}
 
