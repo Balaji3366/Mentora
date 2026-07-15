@@ -1,12 +1,9 @@
-import { writeFile, mkdir } from "fs/promises";
-import { join } from "path";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 
 export async function POST(req: Request) {
   try {
-    // Get FormData
     const formData = await req.formData();
 
-    // Get uploaded file
     const file = formData.get("file") as File | null;
 
     if (!file) {
@@ -21,35 +18,30 @@ export async function POST(req: Request) {
       );
     }
 
-    // Convert file to Buffer
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    const buffer = Buffer.from(await file.arrayBuffer());
 
-    // Upload directory
-    const uploadDir = join(process.cwd(), "public", "uploads");
+    const { error } = await supabaseAdmin.storage
+      .from("uploads")
+      .upload(file.name, buffer, {
+        contentType: file.type,
+        upsert: true,
+      });
 
-    // Create uploads folder if it doesn't exist
-    await mkdir(uploadDir, { recursive: true });
-
-    // Full file path
-    const uploadPath = join(uploadDir, file.name);
-
-    // Save file
-    await writeFile(uploadPath, buffer);
+    if (error) {
+      throw error;
+    }
 
     return Response.json({
       success: true,
       filename: file.name,
-      path: `/uploads/${file.name}`,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("UPLOAD ERROR:", error);
 
     return Response.json(
       {
         success: false,
-        error:
-          error instanceof Error ? error.message : "Unknown upload error",
+        error: error.message,
       },
       {
         status: 500,

@@ -1,6 +1,5 @@
-import { readFile } from "fs/promises";
-import { join } from "path";
 import { GoogleGenAI } from "@google/genai";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY!,
@@ -20,17 +19,18 @@ export async function POST(req: Request) {
       );
     }
 
-    const filePath = join(
-      process.cwd(),
-      "public",
-      "uploads",
-      fileName
-    );
+    const { data, error } = await supabaseAdmin.storage
+      .from("uploads")
+      .download(fileName);
 
-    const fileBuffer = await readFile(filePath);
+    if (error || !data) {
+      throw new Error("Unable to download PDF.");
+    }
+
+    const buffer = Buffer.from(await data.arrayBuffer());
 
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-2.5-flash",
       contents: [
         {
           role: "user",
@@ -38,12 +38,11 @@ export async function POST(req: Request) {
             {
               inlineData: {
                 mimeType: "application/pdf",
-                data: fileBuffer.toString("base64"),
+                data: buffer.toString("base64"),
               },
             },
             {
-              text: `
-Generate 10 multiple choice questions from this PDF.
+              text: `Generate 10 multiple choice questions from this PDF.
 
 Format:
 
@@ -54,8 +53,7 @@ C.
 D.
 Answer:
 
-Only return the quiz.
-`,
+Only return the quiz.`,
             },
           ],
         },
@@ -66,16 +64,17 @@ Only return the quiz.
       success: true,
       quiz: response.text,
     });
-
   } catch (error: any) {
-    console.error(error);
+    console.error("QUIZ ERROR:", error);
 
     return Response.json(
       {
         success: false,
         error: error.message,
       },
-      { status: 500 }
+      {
+        status: 500,
+      }
     );
   }
 }
