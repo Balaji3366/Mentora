@@ -35,7 +35,7 @@ export async function POST(req: Request) {
     for (let i = 0; i < 3; i++) {
       try {
         response = await ai.models.generateContent({
-          model: "gemini-2.5-flash-lite",
+          model: "gemini-3-flash-preview",
           contents: [
             {
               role: "user",
