@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
 import Link from "next/link";
+import { supabase } from "@/lib/supabase";
 
 type Resume = {
   id: string;
@@ -14,6 +14,8 @@ type Resume = {
 
 export default function ResumeHistoryPage() {
   const [reports, setReports] = useState<Resume[]>([]);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchReports();
@@ -25,11 +27,6 @@ export default function ResumeHistoryPage() {
       .select("*")
       .order("created_at", { ascending: false });
 
-    console.log("========== Resume History ==========");
-    console.log("Data:", data);
-    console.log("Error:", error);
-    console.log("===================================");
-
     if (error) {
       console.error(error);
       return;
@@ -38,23 +35,22 @@ export default function ResumeHistoryPage() {
     setReports(data ?? []);
   }
 
-  async function deleteReport(id: string) {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this report?"
-    );
-
-    if (!confirmed) return;
+  async function deleteReport() {
+    if (!selectedId) return;
 
     const { error } = await supabase
       .from("resume_history")
       .delete()
-      .eq("id", id);
+      .eq("id", selectedId);
 
     if (error) {
       console.error(error);
       alert("Failed to delete report.");
       return;
     }
+
+    setShowDeleteModal(false);
+    setSelectedId(null);
 
     fetchReports();
   }
@@ -92,7 +88,7 @@ export default function ResumeHistoryPage() {
             reports.map((report) => (
               <div
                 key={report.id}
-                className="flex min-h-[340px] flex-col justify-between rounded-2xl border bg-white p-6 shadow-lg transition duration-300 hover:-translate-y-2 hover:shadow-2xl"
+                className="flex min-h-[340px] flex-col justify-between rounded-2xl border border-gray-200 bg-white p-6 shadow-lg transition duration-300 hover:-translate-y-2 hover:shadow-2xl"
               >
                 <h2 className="mb-3 break-words text-center text-lg font-bold text-gray-900">
                   📄 {report.file_name}
@@ -126,7 +122,10 @@ export default function ResumeHistoryPage() {
                 </Link>
 
                 <button
-                  onClick={() => deleteReport(report.id)}
+                  onClick={() => {
+                    setSelectedId(report.id);
+                    setShowDeleteModal(true);
+                  }}
                   className="mt-3 w-full rounded-lg bg-red-600 py-3 font-semibold text-white transition hover:bg-red-700"
                 >
                   🗑 Delete Report
@@ -136,6 +135,45 @@ export default function ResumeHistoryPage() {
           )}
         </div>
       </div>
+
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="w-[90%] max-w-md rounded-3xl bg-white p-8 shadow-2xl">
+            <div className="text-center">
+              <div className="text-6xl">🗑️</div>
+
+              <h2 className="mt-4 text-2xl font-bold text-gray-900">
+                Delete Report?
+              </h2>
+
+              <p className="mt-3 text-gray-600">
+                Are you sure you want to delete this report?
+                <br />
+                This action cannot be undone.
+              </p>
+            </div>
+
+            <div className="mt-8 flex gap-4">
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setSelectedId(null);
+                }}
+                className="flex-1 rounded-xl border border-gray-300 py-3 font-semibold transition hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={deleteReport}
+                className="flex-1 rounded-xl bg-red-600 py-3 font-semibold text-white transition hover:bg-red-700"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

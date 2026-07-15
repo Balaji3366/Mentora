@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import Link from "next/link";
 
 type Props = {
   params: Promise<{
@@ -19,28 +20,151 @@ export default async function ViewReportPage({
 
   if (!data) {
     return (
-      <div className="p-20 text-center text-2xl">
-        Report not found.
-      </div>
+      <section className="min-h-screen flex items-center justify-center bg-gray-100">
+        <h1 className="text-3xl font-bold text-red-600">
+          Report not found
+        </h1>
+      </section>
     );
   }
 
+  const score = data.ats_score;
+
+  const strengths =
+    data.report
+      .match(/STRENGTHS:([\s\S]*?)WEAKNESSES:/)?.[1]
+      ?.split("\n")
+      .filter((line: string) => line.trim().startsWith("-"))
+      .map((line: string) => line.replace("-", "").trim()) || [];
+
+  const weaknesses =
+    data.report
+      .match(/WEAKNESSES:([\s\S]*?)SUGGESTIONS:/)?.[1]
+      ?.split("\n")
+      .filter((line: string) => line.trim().startsWith("-"))
+      .map((line: string) => line.replace("-", "").trim()) || [];
+
+  const suggestions =
+    data.report
+      .match(/SUGGESTIONS:([\s\S]*)/)?.[1]
+      ?.split("\n")
+      .filter((line: string) => line.trim().startsWith("-"))
+      .map((line: string) => line.replace("-", "").trim()) || [];
+
   return (
     <section className="min-h-screen bg-gray-100 py-20">
-      <div className="mx-auto max-w-5xl rounded-3xl bg-white p-10 shadow-xl border border-gray-200">
+      <div className="mx-auto max-w-5xl px-6">
 
-        <h1 className="text-4xl font-bold text-gray-900">
-          📄 {data.file_name}
-        </h1>
+        <div className="rounded-3xl bg-white p-10 shadow-xl">
 
-        <p className="mt-6 text-2xl font-bold text-emerald-600">
-          ATS Score: {data.ats_score}/100
-        </p>
+          <h1 className="text-center text-4xl font-bold text-gray-900">
+            📄 AI Resume Report
+          </h1>
 
-        <div className="mt-10 rounded-xl bg-gray-100 p-6 whitespace-pre-wrap">
-          {data.report}
+          <p className="mt-4 text-center text-gray-500">
+            {data.file_name}
+          </p>
+
+          {/* ATS Score */}
+          <div className="mt-10 rounded-2xl bg-blue-50 p-8">
+
+            <h2 className="text-2xl font-bold text-blue-800">
+              📊 ATS Score
+            </h2>
+
+            <p
+              className={`mt-4 text-5xl font-extrabold ${
+                score >= 75
+                  ? "text-green-700"
+                  : score >= 50
+                  ? "text-yellow-600"
+                  : "text-red-600"
+              }`}
+            >
+              {score}/100
+            </p>
+
+            <div className="mt-5 h-4 w-full rounded-full bg-blue-200">
+              <div
+                className={`h-4 rounded-full ${
+                  score >= 75
+                    ? "bg-green-600"
+                    : score >= 50
+                    ? "bg-yellow-500"
+                    : "bg-red-600"
+                }`}
+                style={{ width: `${score}%` }}
+              />
+            </div>
+
+          </div>
+
+          {/* Strengths */}
+
+          <div className="mt-8 rounded-2xl bg-green-50 p-8">
+
+            <h2 className="mb-5 text-2xl font-bold text-green-700">
+              💪 Strengths
+            </h2>
+
+            <ul className="space-y-3">
+              {strengths.map((item: string, index: number) => (
+                <li key={index}>
+                  ✅ {item}
+                </li>
+              ))}
+            </ul>
+
+          </div>
+
+          {/* Weaknesses */}
+
+          <div className="mt-8 rounded-2xl bg-yellow-50 p-8">
+
+            <h2 className="mb-5 text-2xl font-bold text-yellow-700">
+              ⚠ Weaknesses
+            </h2>
+
+            <ul className="space-y-3">
+              {weaknesses.map((item: string, index: number) => (
+                <li key={index}>
+                  ❌ {item}
+                </li>
+              ))}
+            </ul>
+
+          </div>
+
+          {/* Suggestions */}
+
+          <div className="mt-8 rounded-2xl bg-purple-50 p-8">
+
+            <h2 className="mb-5 text-2xl font-bold text-purple-700">
+              🚀 Suggestions
+            </h2>
+
+            <ul className="space-y-3">
+              {suggestions.map((item: string, index: number) => (
+                <li key={index}>
+                  💡 {item}
+                </li>
+              ))}
+            </ul>
+
+          </div>
+
+          <div className="mt-10 flex justify-center">
+
+            <Link
+              href="/resume-history"
+              className="rounded-xl bg-indigo-600 px-8 py-4 font-semibold text-white transition hover:bg-indigo-700"
+            >
+              ← Back to History
+            </Link>
+
+          </div>
+
         </div>
-
       </div>
     </section>
   );
