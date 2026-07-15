@@ -1,26 +1,25 @@
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 export async function GET() {
-  try {
-    const { data, error } = await supabase.storage
-      .from("uploads")
-      .list("", {
-        limit: 100,
-        sortBy: { column: "created_at", order: "desc" },
-      });
-
-    if (error) {
-      throw error;
-    }
-
-    const files = data.map((file) => file.name);
-
-    return Response.json(files);
-  } catch (error) {
-    console.error("FILES ERROR:", error);
-
-    return Response.json([], {
-      status: 500,
+  const { data, error } = await supabase.storage
+    .from("uploads")
+    .list("", {
+      sortBy: {
+        column: "created_at",
+        order: "desc",
+      },
     });
+
+  if (error) {
+    return Response.json([]);
   }
+
+  return Response.json(
+    data.map((f) => f.name)
+  );
 }
