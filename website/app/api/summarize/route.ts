@@ -1,6 +1,5 @@
-import { readFile } from "fs/promises";
-import { join } from "path";
 import { GoogleGenAI } from "@google/genai";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 
 export async function POST(req: Request) {
   try {
@@ -18,21 +17,31 @@ export async function POST(req: Request) {
       );
     }
 
-    const filePath = join(
-      process.cwd(),
-      "public",
-      "uploads",
-      fileName
-    );
+    // Download PDF from Supabase Storage
+    const { data, error } = await supabaseAdmin.storage
+      .from("uploads")
+      .download(fileName);
 
-    const fileBuffer = await readFile(filePath);
+    if (error || !data) {
+      return Response.json(
+        {
+          success: false,
+          error: "Unable to download PDF from Storage.",
+        },
+        {
+          status: 500,
+        }
+      );
+    }
+
+    const buffer = Buffer.from(await data.arrayBuffer());
 
     const ai = new GoogleGenAI({
       apiKey: process.env.GEMINI_API_KEY!,
     });
 
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-2.5-flash",
       contents: [
         {
           role: "user",
@@ -40,7 +49,7 @@ export async function POST(req: Request) {
             {
               inlineData: {
                 mimeType: "application/pdf",
-                data: fileBuffer.toString("base64"),
+                data: buffer.toString("base64"),
               },
             },
             {
@@ -61,7 +70,7 @@ export async function POST(req: Request) {
     return Response.json(
       {
         success: false,
-        error: error.message,
+        error: error.message || "Failed to summarize PDF.",
       },
       {
         status: 500,
