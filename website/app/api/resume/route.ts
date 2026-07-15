@@ -89,13 +89,14 @@ const response = await ai.models.generateContent({
     console.error("Resume Analyzer Error:", error);
 
     return Response.json(
-      {
-        success: false,
-        error: error.message,
-      },
-      {
-        status: 500,
-      }
-    );
+  {
+    success: false,
+    message:
+      "Gemini API quota exceeded. Please try again later.",
+  },
+  {
+    status: 500,
+  }
+);
   }
 }

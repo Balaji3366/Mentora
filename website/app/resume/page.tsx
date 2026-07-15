@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { jsPDF } from "jspdf";
+import { supabase } from "@/lib/supabase";
 
 export default function ResumePage() {
   const [file, setFile] = useState<File | null>(null);
@@ -142,15 +143,41 @@ suggestions.forEach((item: string) => {
         });
 
       const data = await response.json();
-      setResult(data.message);
+
+if (!response.ok || !data.message) {
+  setResult(
+    data.message || "Gemini API quota exceeded. Please try again later."
+  );
+  setLoading(false);
+  return;
+}
+
+const atsScore = parseInt(
+  data.message.match(/ATS_SCORE:\s*(\d+)\s*\/?\s*100/i)?.[1] || "0"
+);
+
+    const { error } = await supabase
+  .from("resume_history")
+  .insert([
+    {
+      file_name: file.name,
+      ats_score: atsScore,
+      report: data.message,
+    },
+  ]);
+
+if (error) {
+  console.error("Supabase Error:", error);
+}
+    setResult(data.message);
       
     } catch (error) {
-      console.error(error);
-      setResult("Something went wrong.");
-    }
-
-    setLoading(false);
-  };
+  console.error(error);
+  setResult("Something went wrong.");
+} finally {
+  setLoading(false);
+}
+};
 
   return (
     <section className="min-h-screen bg-gray-100 py-20">
