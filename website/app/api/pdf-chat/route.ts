@@ -1,11 +1,16 @@
 import { readFile } from "fs/promises";
 import { join } from "path";
 import { GoogleGenAI } from "@google/genai";
+import { createClient } from "@supabase/supabase-js";
+
 
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY!,
 });
-
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 export async function POST(req: Request) {
   try {
     const { fileName, question } = await req.json();
@@ -20,14 +25,15 @@ export async function POST(req: Request) {
       );
     }
 
-    const filePath = join(
-      process.cwd(),
-      "public",
-      "uploads",
-      fileName
-    );
+    const { data, error } = await supabase.storage
+      .from("uploads")
+      .download(fileName);
 
-    const buffer = await readFile(filePath);
+    if (error || !data) {
+      throw new Error("Failed to download PDF from Storage.");
+    }
+
+    const buffer = Buffer.from(await data.arrayBuffer());
 
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",

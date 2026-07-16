@@ -42,18 +42,32 @@ export async function POST(req: Request) {
               },
             },
             {
-              text: `Generate 10 multiple choice questions from this PDF.
+              text: `
+Generate exactly 10 multiple choice questions.
 
-Format:
+Return the output in Markdown format.
 
-Q1.
-A.
-B.
-C.
-D.
-Answer:
+Example:
 
-Only return the quiz.`,
+## Question 1
+What is Python?
+
+A. Language A
+B. Language B
+C. Language C
+D. Language D
+
+**Answer:** B
+
+---
+
+## Question 2
+...
+
+Do not return JSON.
+Do not return HTML.
+Only Markdown.
+`,
             },
           ],
         },
@@ -64,17 +78,21 @@ Only return the quiz.`,
       success: true,
       quiz: response.text,
     });
+
   } catch (error: any) {
     console.error("QUIZ ERROR:", error);
+
+    const message =
+      error?.status === 429
+        ? "AI service is currently busy. Please try again in a few minutes."
+        : error?.message || "Failed to generate quiz.";
 
     return Response.json(
       {
         success: false,
-        error: error.message,
+        error: message,
       },
-      {
-        status: 500,
-      }
+      { status: 500 }
     );
   }
 }

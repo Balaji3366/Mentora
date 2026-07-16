@@ -27,167 +27,195 @@ export default function Dashboard() {
   return (
     <section
       id="dashboard"
-      className="min-h-screen bg-gray-50 py-24"
+      className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-100 pt-40 pb-24"
     >
       <div className="mx-auto max-w-7xl px-6">
 
         {/* Heading */}
-        <div className="mb-12 text-center">
-          <h2 className="text-5xl font-bold text-gray-900">
-            Your AI Learning Dashboard
+        <div className="mb-14 text-center animate-in fade-in duration-700">
+          <h2 className="text-5xl font-extrabold tracking-tight text-gray-900">
+            🚀 AI Learning Workspace
           </h2>
 
-          <p className="mt-4 text-lg text-gray-600">
-            Access all AI-powered learning tools from one place.
+          <p className="mx-auto mt-5 max-w-3xl text-lg leading-8 text-gray-600">
+            Your complete AI workspace to analyze resumes, explore documents,
+            chat with AI, generate quizzes and prepare for interviews — all in one place.
           </p>
         </div>
 
         {/* Stats */}
-        <div className="mb-12 grid gap-6 md:grid-cols-4">
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg">
+        <div className="mb-14 grid gap-6 md:grid-cols-4">
+
+          {/* Resume Reports */}
+          <div className="rounded-3xl border border-green-200 bg-gradient-to-br from-green-50 to-white p-6 shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
             <h3 className="text-lg font-semibold text-gray-800">
-              Resume Reports
+              📄 Resume Reports
             </h3>
 
-            <p className="mt-2 text-4xl font-bold text-emerald-600">
+            <p className="mt-3 text-5xl font-extrabold text-green-600">
               {resumeCount}
             </p>
           </div>
 
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg">
+          {/* Documents */}
+          <div className="rounded-3xl border border-blue-200 bg-gradient-to-br from-blue-50 to-white p-6 shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
             <h3 className="text-lg font-semibold text-gray-800">
+              📚 Documents
+            </h3>
+
+            <p className="mt-3 text-5xl font-extrabold text-blue-600">
+              0
+            </p>
+          </div>
+
+          {/* AI Chats */}
+          <div className="rounded-3xl border border-purple-200 bg-gradient-to-br from-purple-50 to-white p-6 shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
+            <h3 className="text-lg font-semibold text-gray-800">
+              🤖 AI Chats
+            </h3>
+
+            <p className="mt-3 text-5xl font-extrabold text-purple-600">
+              0
+            </p>
+          </div>
+
+          {/* Quizzes */}
+          <div className="rounded-3xl border border-orange-200 bg-gradient-to-br from-orange-50 to-white p-6 shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
+            <h3 className="text-lg font-semibold text-gray-800">
+              📝 Quizzes
+            </h3>
+
+            <p className="mt-3 text-5xl font-extrabold text-orange-500">
+              0
+            </p>
+          </div>
+
+        </div>
+
+        {/* Feature Cards */}
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 animate-in fade-in duration-700">
+        {/* Documents */}
+          <div className="rounded-3xl border border-gray-200 bg-gradient-to-br from-white to-slate-50 p-8 shadow-xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
+            <div className="mb-4 text-5xl">📄</div>
+
+            <h3 className="text-2xl font-bold text-gray-900">
               Documents
             </h3>
 
-            <p className="mt-2 text-4xl font-bold text-blue-600">
-              0
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg">
-            <h3 className="text-lg font-semibold text-gray-800">
-              AI Chats
-            </h3>
-
-            <p className="mt-2 text-4xl font-bold text-purple-600">
-              0
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg">
-            <h3 className="text-lg font-semibold text-gray-800">
-              Quizzes
-            </h3>
-
-            <p className="mt-2 text-4xl font-bold text-orange-500">
-              0
-            </p>
-          </div>
-        </div>
-
-        {/* Cards */}
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-
-          {/* Documents */}
-          <div className="rounded-3xl border border-gray-200 bg-white p-8 shadow-xl transition hover:-translate-y-2 hover:shadow-2xl">
-            <h3 className="text-2xl font-bold text-gray-900">
-              📄 Documents
-            </h3>
-
             <p className="mt-4 text-gray-600">
-              Upload PDFs, summarize them and chat with AI.
+              Upload PDFs, summarize documents and chat with AI.
             </p>
 
             <button
               onClick={() => router.push("/documents")}
-              className="mt-6 rounded-xl bg-blue-600 px-6 py-3 text-white hover:bg-blue-700"
+              className="mt-6 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:bg-blue-700"
             >
-              Open →
+              📂 Open Documents
             </button>
           </div>
 
           {/* AI Chat */}
-          <div className="rounded-3xl border border-gray-200 bg-white p-8 shadow-xl transition hover:-translate-y-2 hover:shadow-2xl">
+          <div className="rounded-3xl border border-gray-200 bg-gradient-to-br from-white to-slate-50 p-8 shadow-xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
+            <div className="mb-4 text-5xl">🤖</div>
+
             <h3 className="text-2xl font-bold text-gray-900">
-              🤖 AI Chat
+              AI Chat
             </h3>
 
             <p className="mt-4 text-gray-600">
-              Ask questions from your uploaded PDFs using AI.
+              Ask questions about your uploaded PDFs using AI.
             </p>
 
             <button
               onClick={() => router.push("/documents")}
-              className="mt-6 rounded-xl bg-purple-600 px-6 py-3 text-white hover:bg-purple-700"
+              className="mt-6 rounded-xl bg-purple-600 px-6 py-3 font-semibold text-white transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:bg-purple-700"
             >
-              Open →
+              💬 Start Chat
             </button>
           </div>
 
           {/* AI Quiz */}
-          <div className="rounded-3xl border border-gray-200 bg-white p-8 shadow-xl transition hover:-translate-y-2 hover:shadow-2xl">
+          <div className="rounded-3xl border border-gray-200 bg-gradient-to-br from-white to-slate-50 p-8 shadow-xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
+            <div className="mb-4 text-5xl">📝</div>
+
             <h3 className="text-2xl font-bold text-gray-900">
-              📝 AI Quiz
+              AI Quiz
             </h3>
 
             <p className="mt-4 text-gray-600">
-              Generate multiple choice questions from your PDFs.
+              Generate multiple choice questions from your study material.
             </p>
 
             <button
               onClick={() => router.push("/documents")}
-              className="mt-6 rounded-xl bg-orange-500 px-6 py-3 text-white hover:bg-orange-600"
+              className="mt-6 rounded-xl bg-orange-500 px-6 py-3 font-semibold text-white transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:bg-orange-600"
             >
-              Open →
+              📝 Generate Quiz
             </button>
           </div>
 
-          {/* Interview */}
-          <div className="rounded-3xl border border-gray-200 bg-white p-8 shadow-xl transition hover:-translate-y-2 hover:shadow-2xl">
+          {/* Interview Questions */}
+          <div className="rounded-3xl border border-gray-200 bg-gradient-to-br from-white to-slate-50 p-8 shadow-xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
+            <div className="mb-4 text-5xl">🎤</div>
+
             <h3 className="text-2xl font-bold text-gray-900">
-              🎤 Interview Questions
+              Interview Questions
             </h3>
 
             <p className="mt-4 text-gray-600">
-              Generate HR, Technical and Scenario-based interview questions.
+              Practice HR, technical and scenario-based interview questions.
             </p>
 
             <button
               onClick={() => router.push("/documents")}
-              className="mt-6 rounded-xl bg-pink-600 px-6 py-3 text-white hover:bg-pink-700"
+              className="mt-6 rounded-xl bg-pink-600 px-6 py-3 font-semibold text-white transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:bg-pink-700"
             >
-              Open →
+              🎤 Practice Interview
             </button>
           </div>
 
           {/* Resume Analyzer */}
-          <div className="rounded-3xl border border-gray-200 bg-white p-8 shadow-xl transition hover:-translate-y-2 hover:shadow-2xl">
+          <div className="rounded-3xl border border-gray-200 bg-gradient-to-br from-white to-slate-50 p-8 shadow-xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
+            <div className="mb-4 text-5xl">📄</div>
+
             <h3 className="text-2xl font-bold text-gray-900">
-              📄 Resume Analyzer
+              Resume Analyzer
             </h3>
 
             <p className="mt-4 text-gray-600">
-              Analyze your resume with AI and get an ATS score,
-              strengths and improvement suggestions.
+              Analyze your resume with AI, receive an ATS score,
+              identify strengths and get personalized suggestions.
             </p>
 
-            <div className="mt-6 flex gap-3">
+            <div className="mt-6 grid grid-cols-2 gap-3">
               <button
                 onClick={() => router.push("/resume")}
-                className="rounded-xl bg-emerald-600 px-6 py-3 text-white hover:bg-emerald-700"
+                className="rounded-xl bg-emerald-600 px-5 py-3 font-semibold text-white transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:bg-emerald-700"
               >
-                Analyze
+                🚀 Analyze
               </button>
 
               <button
                 onClick={() => router.push("/resume-history")}
-                className="rounded-xl bg-slate-700 px-6 py-3 text-white hover:bg-slate-800"
+                className="rounded-xl bg-slate-700 px-5 py-3 font-semibold text-white transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:bg-slate-800"
               >
-                History
+                📜 History
               </button>
             </div>
           </div>
 
+        </div>
+
+        {/* Footer */}
+        <div className="mt-20 border-t border-slate-200 pt-8 text-center">
+          <p className="text-sm font-semibold text-slate-600">
+            ✨ Mentora AI Workspace
+          </p>
+
+          <p className="mt-2 text-sm text-slate-500">
+            Built for students, professionals and job seekers to learn smarter,
+            prepare better and grow faster with Artificial Intelligence.
+          </p>
         </div>
 
       </div>

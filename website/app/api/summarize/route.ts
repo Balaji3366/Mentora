@@ -41,7 +41,7 @@ export async function POST(req: Request) {
     });
 
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3-flash-preview",
       contents: [
         {
           role: "user",
@@ -59,11 +59,19 @@ export async function POST(req: Request) {
         },
       ],
     });
+    console.log("FULL RESPONSE:");
+console.dir(response, { depth: null });
 
-    return Response.json({
-      success: true,
-      summary: response.text,
-    });
+console.log("TEXT:", response.text);
+console.log("CANDIDATES:", response.candidates);
+
+    const summary =
+  response.candidates?.[0]?.content?.parts?.[0]?.text || "";
+
+return Response.json({
+  success: true,
+  summary,
+});
   } catch (error: any) {
     console.error("SUMMARY ERROR:", error);
 

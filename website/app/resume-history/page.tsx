@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { Trash2 } from "lucide-react";
 
 type Resume = {
   id: string;
@@ -58,6 +59,14 @@ export default function ResumeHistoryPage() {
   return (
     <section className="min-h-screen bg-gray-100 py-20">
       <div className="mx-auto max-w-6xl px-6">
+        <div className="mb-6">
+  <button
+    onClick={() => window.history.back()}
+    className="rounded-lg border border-gray-300 bg-white px-4 py-2 font-medium text-gray-700 shadow-sm transition hover:bg-gray-100"
+  >
+    ← Back
+  </button>
+</div>
         <h1 className="text-center text-5xl font-bold text-gray-900">
           📚 Resume History
         </h1>
@@ -90,7 +99,7 @@ export default function ResumeHistoryPage() {
                 key={report.id}
                 className="flex min-h-[340px] flex-col justify-between rounded-2xl border border-gray-200 bg-white p-6 shadow-lg transition duration-300 hover:-translate-y-2 hover:shadow-2xl"
               >
-                <h2 className="mb-3 break-words text-center text-lg font-bold text-gray-900">
+                <h2 className="mb-3 h-14 break-words text-center text-base font-bold leading-5 text-gray-900 overflow-hidden">
                   📄 {report.file_name}
                 </h2>
 
@@ -138,9 +147,13 @@ export default function ResumeHistoryPage() {
 
       {showDeleteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="w-[90%] max-w-md rounded-3xl bg-white p-8 shadow-2xl">
+          <div className="w-[90%] max-w-md rounded-3xl bg-white p-8 shadow-2xl border border-gray-200">
             <div className="text-center">
-              <div className="text-6xl">🗑️</div>
+              <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-red-50">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-red-500 shadow-lg transition-transform duration-300 hover:rotate-12 hover:scale-110">
+                <Trash2 className="h-8 w-8 -rotate-12 text-white" />
+              </div>
+            </div>
 
               <h2 className="mt-4 text-2xl font-bold text-gray-900">
                 Delete Report?
@@ -153,24 +166,24 @@ export default function ResumeHistoryPage() {
               </p>
             </div>
 
-            <div className="mt-8 flex gap-4">
-              <button
-                onClick={() => {
-                  setShowDeleteModal(false);
-                  setSelectedId(null);
-                }}
-                className="flex-1 rounded-xl border border-gray-300 py-3 font-semibold transition hover:bg-gray-100"
-              >
-                Cancel
-              </button>
+            <div className="mt-8 flex justify-center gap-4">
+            <button
+              onClick={() => {
+                setShowDeleteModal(false);
+                setSelectedId(null);
+              }}
+              className="rounded-xl border border-gray-300 bg-white px-8 py-3 font-semibold text-gray-700 shadow-sm transition-all duration-300 hover:bg-gray-100 hover:shadow-md active:scale-95"
+            >
+              Cancel
+            </button>
 
-              <button
-                onClick={deleteReport}
-                className="flex-1 rounded-xl bg-red-600 py-3 font-semibold text-white transition hover:bg-red-700"
-              >
-                Delete
-              </button>
-            </div>
+            <button
+              onClick={deleteReport}
+              className="rounded-xl bg-gradient-to-r from-red-500 to-red-600 px-8 py-3 font-semibold text-white shadow-lg transition-all duration-300 hover:scale-105 hover:from-red-600 hover:to-red-700 active:scale-95"
+            >
+              Delete
+            </button>
+          </div>
           </div>
         </div>
       )}

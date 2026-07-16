@@ -180,11 +180,21 @@ if (error) {
 };
 
   return (
-    <section className="min-h-screen bg-gray-100 py-20">
-      <div className="mx-auto max-w-5xl px-6">
-        <h1 className="bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-center text-5xl font-extrabold text-transparent">
-  📄 AI Resume Analyzer
-</h1>
+  <section className="min-h-screen bg-gray-100 py-20">
+    <div className="mx-auto max-w-5xl px-6">
+
+      <div className="mb-6">
+        <button
+          onClick={() => window.history.back()}
+          className="rounded-lg border border-gray-300 bg-white px-4 py-2 font-medium text-gray-700 shadow-sm transition hover:bg-gray-100"
+        >
+          ← Back
+        </button>
+      </div>
+
+      <h1 className="bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-center text-5xl font-extrabold text-transparent">
+        📄 AI Resume Analyzer
+      </h1>
 
         <p className="mt-4 text-center text-lg text-gray-700">
           Upload your resume and get an ATS score, strengths,

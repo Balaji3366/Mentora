@@ -50,12 +50,14 @@ export async function POST(req: Request) {
                   text: `
 Generate 10 interview questions from this PDF.
 
-Include:
-- HR Questions
-- Technical Questions
-- Scenario Based Questions
-
-Only return the interview questions.
+Requirements:
+- Divide into three sections:
+  1. HR Questions
+  2. Technical Questions
+  3. Scenario Based Questions
+- Mention difficulty (Easy / Medium / Hard).
+- Keep questions professional.
+- Return only the interview questions.
 `,
                 },
               ],
@@ -64,8 +66,10 @@ Only return the interview questions.
         });
 
         break;
-      } catch (err) {
+      } catch (err: any) {
         if (i === 2) throw err;
+
+        // Wait 3 seconds and retry
         await new Promise((resolve) => setTimeout(resolve, 3000));
       }
     }
@@ -74,13 +78,19 @@ Only return the interview questions.
       success: true,
       interview: response?.text,
     });
+
   } catch (error: any) {
     console.error("INTERVIEW ERROR:", error);
+
+    const message =
+      error?.status === 429
+        ? "AI service is busy right now. Please try again in a minute."
+        : error?.message || "Failed to generate interview questions.";
 
     return Response.json(
       {
         success: false,
-        error: error.message,
+        error: message,
       },
       { status: 500 }
     );
