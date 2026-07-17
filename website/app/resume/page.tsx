@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { jsPDF } from "jspdf";
 import { supabase } from "@/lib/supabase";
+import BackButton from "@/components/BackButton";
 
 export default function ResumePage() {
   const [file, setFile] = useState<File | null>(null);
@@ -184,12 +185,7 @@ if (error) {
     <div className="mx-auto max-w-5xl px-6">
 
       <div className="mb-6">
-        <button
-          onClick={() => window.history.back()}
-          className="rounded-lg border border-gray-300 bg-white px-4 py-2 font-medium text-gray-700 shadow-sm transition hover:bg-gray-100"
-        >
-          ← Back
-        </button>
+        <BackButton />
       </div>
 
       <h1 className="bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-center text-5xl font-extrabold text-transparent">

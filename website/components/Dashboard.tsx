@@ -3,11 +3,13 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import BackButton from "@/components/BackButton";
 
 export default function Dashboard() {
   const router = useRouter();
 
   const [resumeCount, setResumeCount] = useState(0);
+  const [documentCount, setDocumentCount] = useState(0);
 
   useEffect(() => {
     loadStats();
@@ -22,14 +24,27 @@ export default function Dashboard() {
       });
 
     setResumeCount(count || 0);
+  
+  const { data: documentFiles, error: documentError } = await supabase.storage
+  .from("uploads")
+  .list();
+ console.log("Document Files:", documentFiles);
+console.log("Document Error:", documentError);
+if (documentError) {
+  console.error(documentError);
+} else {
+  setDocumentCount(documentFiles.length);
+}
   }
-
   return (
     <section
       id="dashboard"
       className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-100 pt-40 pb-24"
     >
       <div className="mx-auto max-w-7xl px-6">
+        <div className="mb-8">
+         <BackButton />
+        </div>
 
         {/* Heading */}
         <div className="mb-14 text-center animate-in fade-in duration-700">
@@ -64,7 +79,7 @@ export default function Dashboard() {
             </h3>
 
             <p className="mt-3 text-5xl font-extrabold text-blue-600">
-              0
+              {documentCount}
             </p>
           </div>
 
@@ -91,7 +106,35 @@ export default function Dashboard() {
           </div>
 
         </div>
+         {/* Featured AI Mentor */}
+<div className="mb-12 overflow-hidden rounded-3xl bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-700 p-10 text-white shadow-2xl">
+  <div className="flex flex-col items-center justify-between gap-8 lg:flex-row">
 
+    <div className="max-w-2xl">
+      <span className="inline-flex items-center rounded-full bg-white/20 px-4 py-2 text-sm font-semibold backdrop-blur">
+        ⭐ Featured AI Mentor
+      </span>
+
+      <h2 className="mt-5 text-4xl font-extrabold">
+        🤖 Your Personal AI Mentor
+      </h2>
+
+      <p className="mt-5 text-lg leading-8 text-blue-100">
+        Learn faster, solve coding problems, prepare for interviews,
+        improve your resume and get career guidance with your
+        intelligent AI Mentor.
+      </p>
+    </div>
+
+    <button
+      onClick={() => router.push("/chat")}
+      className="rounded-2xl bg-white px-8 py-4 text-lg font-bold text-blue-700 shadow-xl transition-all duration-300 hover:-translate-y-1 hover:scale-105"
+    >
+      🚀 Start AI Chat
+    </button>
+
+  </div>
+</div>
         {/* Feature Cards */}
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 animate-in fade-in duration-700">
         {/* Documents */}
@@ -114,25 +157,6 @@ export default function Dashboard() {
             </button>
           </div>
 
-          {/* AI Chat */}
-          <div className="rounded-3xl border border-gray-200 bg-gradient-to-br from-white to-slate-50 p-8 shadow-xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
-            <div className="mb-4 text-5xl">🤖</div>
-
-            <h3 className="text-2xl font-bold text-gray-900">
-              AI Chat
-            </h3>
-
-            <p className="mt-4 text-gray-600">
-              Ask questions about your uploaded PDFs using AI.
-            </p>
-
-            <button
-              onClick={() => router.push("/documents")}
-              className="mt-6 rounded-xl bg-purple-600 px-6 py-3 font-semibold text-white transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:bg-purple-700"
-            >
-              💬 Start Chat
-            </button>
-          </div>
 
           {/* AI Quiz */}
           <div className="rounded-3xl border border-gray-200 bg-gradient-to-br from-white to-slate-50 p-8 shadow-xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">

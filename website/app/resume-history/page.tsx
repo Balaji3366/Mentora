@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { Trash2 } from "lucide-react";
+import BackButton from "@/components/BackButton";
 
 type Resume = {
   id: string;
@@ -60,13 +61,8 @@ export default function ResumeHistoryPage() {
     <section className="min-h-screen bg-gray-100 py-20">
       <div className="mx-auto max-w-6xl px-6">
         <div className="mb-6">
-  <button
-    onClick={() => window.history.back()}
-    className="rounded-lg border border-gray-300 bg-white px-4 py-2 font-medium text-gray-700 shadow-sm transition hover:bg-gray-100"
-  >
-    ← Back
-  </button>
-</div>
+          <BackButton />
+        </div>
         <h1 className="text-center text-5xl font-bold text-gray-900">
           📚 Resume History
         </h1>

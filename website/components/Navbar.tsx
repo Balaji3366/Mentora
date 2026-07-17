@@ -23,6 +23,12 @@ export default function Navbar() {
         >
           Features
         </a>
+        <a
+        href="#plans"
+        className="font-medium text-slate-300 transition-all duration-300 hover:text-cyan-400"
+      >
+        Plans
+      </a>
 
         <a
           href="#dashboard"
@@ -38,12 +44,7 @@ export default function Navbar() {
           About
         </a>
 
-        <button
-          onClick={() => router.push("/dashboard")}
-          className="rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-6 py-2.5 font-semibold text-white shadow-lg shadow-cyan-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:scale-105 hover:shadow-cyan-500/40"
-        >
-          🚀 Get Started
-        </button>
+      
       </div>
     </nav>
   );

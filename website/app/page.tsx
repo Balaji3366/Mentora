@@ -5,18 +5,15 @@ import Stats from "../components/Stats";
 import Testimonials from "../components/Testimonials";
 import Footer from "../components/Footer";
 import Dashboard from "../components/Dashboard";
-
+import Plans from "@/components/plans";
 export default function Home() {
-  return (
-    <>
-      <Navbar />
-      <Hero />
-      <Stats />
-      <Features />
-      <Dashboard />
-      <Testimonials />
-      <Footer />
-    
-    </>
+return (
+<>
+  <Navbar />
+  <Hero />
+  <Plans />
+  <Features />
+  <Footer />
+</>
   );
 }

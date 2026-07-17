@@ -6,6 +6,7 @@ import UploadCard from "@/components/documents/UploadCard";
 import RecentFiles from "@/components/documents/RecentFiles";
 import AIActions from "@/components/documents/AIActions";
 import AIWorkspace from "@/components/documents/AIWorkspace";
+import BackButton from "@/components/BackButton";
 
 export default function DocumentsPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -98,16 +99,8 @@ useEffect(() => {
     <div className="min-h-screen bg-gray-100 p-8">
       <div className="mx-auto max-w-7xl">
 
-        <div className="mb-6 -ml-28">
-          <button
-          onClick={() => window.history.back()}
-          className="group inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 font-semibold text-slate-700 shadow-md transition-all duration-300 hover:-translate-x-1 hover:border-blue-600 hover:bg-blue-600 hover:text-white"
-        >
-          <span className="transition-transform duration-300 group-hover:-translate-x-1">
-            ←
-          </span>
-          🏠 Dashboard
-        </button>
+        <div className="mb-8">
+          <BackButton />
         </div>
 
         <h1 className="mb-2 text-4xl font-bold text-gray-900">

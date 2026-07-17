@@ -1,6 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import BackButton from "@/components/BackButton";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 type ChatMessage = {
   sender: "AI" | "You";
@@ -12,12 +17,18 @@ export default function AIChat() {
   const [loading, setLoading] = useState(false);
 
   const [chat, setChat] = useState<ChatMessage[]>([
+    
     {
       sender: "AI",
       text: "👋 Hello Balaji! I'm your AI Mentor. How can I help you today?",
     },
   ]);
-
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+  messagesEndRef.current?.scrollIntoView({
+    behavior: "smooth",
+  });
+}, [chat, loading]);
   const sendMessage = async () => {
     if (!message.trim() || loading) return;
 
@@ -42,10 +53,12 @@ export default function AIChat() {
         },
         body: JSON.stringify({
           message: userMessage,
+          history: chat,
         }),
       });
-
       const data = await res.json();
+
+      
 
       setChat((prev) => [
         ...prev,
@@ -70,42 +83,115 @@ export default function AIChat() {
   };
 
   return (
+    
     <section className="bg-gray-50 py-20 px-6">
+      <div className="mb-8">
+  <div className="mx-auto mb-8 max-w-4xl">
+  <BackButton />
+</div>
+</div>
       <div className="mx-auto max-w-4xl rounded-2xl bg-white p-8 shadow-lg">
-        <h2 className="mb-6 text-center text-4xl font-bold text-gray-900">
-          💬 AI Mentor Chat
-        </h2>
+        <div className="mb-8 text-center">
+  <div className="mb-3 text-6xl">🤖</div>
+
+  <h2 className="text-4xl font-extrabold text-gray-900">
+    AI Mentor
+  </h2>
+
+  <p className="mt-3 text-lg text-gray-500">
+    Your personal AI mentor for coding, learning,
+    interview preparation and career guidance.
+  </p>
+</div>
 
         {/* Chat Box */}
-        <div className="mb-6 h-96 overflow-y-auto rounded-lg border border-gray-300 bg-gray-50 p-4">
-          {chat.map((msg, index) => (
-            <div
-              key={index}
-              className={`mb-4 ${
-                msg.sender === "You" ? "text-right" : "text-left"
-              }`}
-            >
-              <span
-                className={`inline-block max-w-[80%] rounded-xl px-4 py-3 shadow ${
-                  msg.sender === "You"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-200 text-gray-900"
-                }`}
-              >
-                <strong>{msg.sender}: </strong>
-                {msg.text}
-              </span>
-            </div>
-          ))}
+        <div className="mb-6 h-[500px] overflow-y-auto rounded-2xl border border-slate-200 bg-slate-50 p-6">
+         {chat.map((msg, index) => (
+        <div
+        key={index}
+        className={`mb-6 flex ${
+          msg.sender === "You" ? "justify-end" : "justify-start"
+        }`}
+      >
+        <div
+      className={`flex items-end gap-3 max-w-[80%] ${
+        msg.sender === "You" ? "flex-row-reverse ml-auto" : ""
+      }`}
+    >
+      <div
+        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full shadow-md ${
+          msg.sender === "You"
+            ? "bg-gradient-to-br from-blue-500 to-indigo-600 text-white"
+            : "bg-gradient-to-br from-cyan-500 to-blue-600 text-white"
+        }`}
+      >
+        {msg.sender === "You" ? "👤" : "🤖"}
+      </div>
+
+      <div
+        className={`inline-block max-w-full rounded-2xl px-5 py-3 shadow-md ${
+          msg.sender === "You"
+            ? "bg-blue-600 text-white"
+            : "border border-gray-200 bg-white text-gray-900"
+        }`}
+      >
+       
+        <div className="prose prose-sm max-w-none prose-headings:text-slate-900 prose-p:text-slate-700 prose-li:text-slate-700 prose-code:text-pink-600">
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          components={{
+            code({ className, children, ...props }) {
+              const match = /language-(\w+)/.exec(className || "");
+
+              return match ? (
+                <SyntaxHighlighter
+                  style={oneDark as any}
+                  language={match[1]}
+                  PreTag="div"
+                >
+                  {String(children).replace(/\n$/, "")}
+                </SyntaxHighlighter>
+              ) : (
+                <code
+                    className="rounded bg-gray-200 px-1 py-0.5 text-pink-600"
+                  >
+                  {children}
+                </code>
+              );
+            },
+          }}
+        >
+          {msg.text}
+        </ReactMarkdown>
+      </div>
+      </div>
+    </div>
+  </div>
+))}
 
           {/* Loading */}
           {loading && (
-            <div className="mb-4 text-left">
-              <span className="inline-block rounded-xl bg-gray-200 px-4 py-3 font-medium text-gray-900 animate-pulse shadow">
-                🤖 Thinking...
-              </span>
+          <div className="mb-6 flex justify-start">
+            <div className="flex items-end gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 text-white shadow-md">
+                🤖
+              </div>
+
+              <div className="flex items-center gap-1 rounded-2xl border border-gray-200 bg-white px-5 py-4 shadow-md">
+                <span className="h-2 w-2 animate-bounce rounded-full bg-gray-500"></span>
+                <span
+                  className="h-2 w-2 animate-bounce rounded-full bg-gray-500"
+                  style={{ animationDelay: "0.2s" }}
+                ></span>
+                <span
+                  className="h-2 w-2 animate-bounce rounded-full bg-gray-500"
+                  style={{ animationDelay: "0.4s" }}
+                ></span>
+              </div>
             </div>
-          )}
+          </div>
+        )}
+          <div ref={messagesEndRef} />
         </div>
 
         {/* Input */}
