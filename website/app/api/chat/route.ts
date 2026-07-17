@@ -12,94 +12,79 @@ export async function POST(req: Request) {
       history = [],
       sessionId,
     } = await req.json();
-    
+
     let currentSessionId = sessionId;
 
-if (!currentSessionId) {
-  const { data, error } = await supabaseAdmin
-    .from("chat_sessions")
-    .insert({
-      title: message.slice(0, 40),
-    })
-    .select("id")
-    .single();
+    if (!currentSessionId) {
+      const { data, error } = await supabaseAdmin
+        .from("chat_sessions")
+        .insert({
+          title: message.slice(0, 40),
+        })
+        .select("id")
+        .single();
 
-  if (error) {
-    throw error;
-  }
+      if (error) {
+        throw error;
+      }
 
-  currentSessionId = data.id;
-}
+      currentSessionId = data.id;
+    }
+
     const response = await ai.models.generateContent({
-        model: "models/gemini-3-flash-preview",
+      model: "models/gemini-3-flash-preview",
+      contents: `
+You are Mentora AI, an intelligent, friendly and professional AI mentor.
 
-        contents: `
-      You are Mentora AI, an intelligent, friendly and professional AI mentor.
+Your job is to help students, developers and job seekers learn better.
 
-      Your job is to help students, developers and job seekers learn better.
+Follow these rules:
 
-      Follow these rules:
+- Always answer in Markdown.
+- Use headings when appropriate.
+- Use bullet points for explanations.
+- Explain concepts in very simple English.
+- If the question is about programming, include well-formatted code examples.
+- If the user is preparing for interviews, provide practical interview tips.
+- If the user asks about resumes or careers, give actionable suggestions.
+- Never give one-line answers unless the question requires it.
+- End every response with a small tip or encouragement.
 
-      - Always answer in Markdown.
-      - Use headings when appropriate.
-      - Use bullet points for explanations.
-      - Explain concepts in very simple English.
-      - If the question is about programming, include well-formatted code examples.
-      - If the user is preparing for interviews, provide practical interview tips.
-      - If the user asks about resumes or careers, give actionable suggestions.
-      - Never give one-line answers unless the question requires it.
-      - End every response with a small tip or encouragement.
+Conversation History:
 
-      Conversation History:
+${history
+  .slice(-10)
+  .map((msg: { sender: string; text: string }) => `${msg.sender}: ${msg.text}`)
+  .join("\n")}
 
-      ${history
-        .slice(-10)
-        .map((msg: { sender: string; text: string }) => `${msg.sender}: ${msg.text}`)
-        .join("\n")}
+User Question:
 
-
-      User Question:
-
-      ${message}
-      `,
-      });
+${message}
+`,
+    });
 
     await supabaseAdmin.from("chat_history").insert({
-  user_message: message,
-  ai_response: response.text,
-});
+      user_message: message,
+      ai_response: response.text,
+    });
 
-await supabaseAdmin.from("chat_messages").insert([
-  {
-    session_id: currentSessionId,
-    sender: "You",
-    message,
-  },
-  {
-    session_id: currentSessionId,
-    sender: "AI",
-    message: response.text,
-  },
-]);
+    await supabaseAdmin.from("chat_messages").insert([
+      {
+        session_id: currentSessionId,
+        sender: "You",
+        message,
+      },
+      {
+        session_id: currentSessionId,
+        sender: "AI",
+        message: response.text,
+      },
+    ]);
 
-return Response.json({
-  reply: response.text,
-  sessionId: currentSessionId,
-});
-const data = await res.json();
-
-if (!sessionId && data.sessionId) {
-  setSessionId(data.sessionId);
-  loadSessions();
-}
-
-setChat((prev) => [
-  ...prev,
-  {
-    sender: "AI",
-    text: data.reply,
-  },
-]);
+    return Response.json({
+      reply: response.text,
+      sessionId: currentSessionId,
+    });
   } catch (error) {
     console.error("Gemini Error:", error);
 
