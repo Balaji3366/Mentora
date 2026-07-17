@@ -1,224 +1,256 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import DeleteChatModal from "@/components/DeleteChatModal";
 import BackButton from "@/components/BackButton";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+import ChatSidebar from "@/components/ChatSidebar";
+import ChatHeader from "@/components/ChatHeader";
+import ChatMessages from "@/components/ChatMessages";
+import ChatInput from "@/components/ChatInput";
 
 type ChatMessage = {
   sender: "AI" | "You";
   text: string;
 };
 
+type ChatSession = {
+  id: string;
+  title: string;
+  created_at: string;
+};
+
 export default function AIChat() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const [sessions, setSessions] = useState<ChatSession[]>([]);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [selectedChat, setSelectedChat] =
+  useState<ChatSession | null>(null);
+
   const [chat, setChat] = useState<ChatMessage[]>([
-    
     {
       sender: "AI",
       text: "👋 Hello Balaji! I'm your AI Mentor. How can I help you today?",
     },
   ]);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-  messagesEndRef.current?.scrollIntoView({
-    behavior: "smooth",
-  });
-}, [chat, loading]);
-  const sendMessage = async () => {
-    if (!message.trim() || loading) return;
 
-    const userMessage = message;
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    loadSessions();
+  }, []);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({
+      behavior: "smooth",
+    });
+  }, [chat, loading]);
+
+  async function loadSessions() {
+    try {
+      const res = await fetch("/api/chat/sessions");
+      const data = await res.json();
+
+      setSessions(data);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async function sendMessage() {
+  if (!message.trim() || loading) return;
+
+  const userMessage = message;
+
+  // Add user message
+  setChat((prev) => [
+  ...prev,
+  {
+    sender: "You",
+    text: userMessage,
+  },
+  {
+    sender: "AI",
+    text: "",
+  },
+]);
+
+  try {
+    const res = await fetch("/api/chat/stream", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        message: userMessage,
+        history: chat,
+        sessionId,
+      }),
+    });
+
+    if (!res.body) {
+      throw new Error("No response body");
+    }
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+
+    let buffer = "";
+
+    while (true) {
+      const { value, done } = await reader.read();
+
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+
+      const events = buffer.split("\n\n");
+      buffer = events.pop() || "";
+
+      for (const event of events) {
+        const lines = event.split("\n");
+
+        const eventName = lines
+          .find((l) => l.startsWith("event:"))
+          ?.replace("event:", "")
+          .trim();
+
+        const dataLine = lines
+          .find((l) => l.startsWith("data:"))
+          ?.replace("data:", "")
+          .trim();
+
+        if (!eventName || !dataLine) continue;
+
+        const data = JSON.parse(dataLine);
+
+        switch (eventName) {
+          case "session":
+            if (!sessionId && data.sessionId) {
+              setSessionId(data.sessionId);
+              loadSessions();
+            }
+            break;
+
+          case "chunk":
+            setChat((prev) => {
+              const updated = [...prev];
+
+              for (let i = updated.length - 1; i >= 0; i--) {
+                if (updated[i].sender === "AI") {
+                  updated[i] = {
+                    ...updated[i],
+                    text: updated[i].text + data.text,
+                  };
+                  break;
+                }
+              }
+
+              return updated;
+            });
+            break;
+
+          case "done":
+            setLoading(false);
+            break;
+        }
+      }
+    }
+  } catch (err) {
+    console.error(err);
 
     setChat((prev) => [
       ...prev,
       {
-        sender: "You",
-        text: userMessage,
+        sender: "AI",
+        text: "❌ Something went wrong.",
       },
     ]);
 
-    setMessage("");
-    setLoading(true);
+    setLoading(false);
+  }
+}
 
+
+  async function handleDelete(id: string) {
     try {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: userMessage,
-          history: chat,
-        }),
+      const res = await fetch(`/api/chat/${id}`, {
+        method: "DELETE",
       });
-      const data = await res.json();
 
-      
+      if (!res.ok) {
+        throw new Error("Failed to delete chat");
+      }
 
-      setChat((prev) => [
-        ...prev,
-        {
-          sender: "AI",
-          text: data.reply,
-        },
-      ]);
+      setSessions((prev) => prev.filter((chat) => chat.id !== id));
+
+      if (sessionId === id) {
+        setSessionId(null);
+
+        setChat([
+          {
+            sender: "AI",
+            text: "👋 Hello Balaji! I'm your AI Mentor. How can I help you today?",
+          },
+        ]);
+      }
     } catch (error) {
       console.error(error);
-
-      setChat((prev) => [
-        ...prev,
-        {
-          sender: "AI",
-          text: "❌ Something went wrong.",
-        },
-      ]);
-    } finally {
-      setLoading(false);
+      alert("Failed to delete chat.");
     }
-  };
+  }
 
   return (
-    
-    <section className="bg-gray-50 py-20 px-6">
-      <div className="mb-8">
-  <div className="mx-auto mb-8 max-w-4xl">
-  <BackButton />
-</div>
-</div>
-      <div className="mx-auto max-w-4xl rounded-2xl bg-white p-8 shadow-lg">
-        <div className="mb-8 text-center">
-  <div className="mb-3 text-6xl">🤖</div>
-
-  <h2 className="text-4xl font-extrabold text-gray-900">
-    AI Mentor
-  </h2>
-
-  <p className="mt-3 text-lg text-gray-500">
-    Your personal AI mentor for coding, learning,
-    interview preparation and career guidance.
-  </p>
-</div>
-
-        {/* Chat Box */}
-        <div className="mb-6 h-[500px] overflow-y-auto rounded-2xl border border-slate-200 bg-slate-50 p-6">
-         {chat.map((msg, index) => (
-        <div
-        key={index}
-        className={`mb-6 flex ${
-          msg.sender === "You" ? "justify-end" : "justify-start"
-        }`}
-      >
-        <div
-      className={`flex items-end gap-3 max-w-[80%] ${
-        msg.sender === "You" ? "flex-row-reverse ml-auto" : ""
-      }`}
-    >
-      <div
-        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full shadow-md ${
-          msg.sender === "You"
-            ? "bg-gradient-to-br from-blue-500 to-indigo-600 text-white"
-            : "bg-gradient-to-br from-cyan-500 to-blue-600 text-white"
-        }`}
-      >
-        {msg.sender === "You" ? "👤" : "🤖"}
+  <>
+    <section className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-purple-950 px-8 py-8">
+      <div className="mb-6">
+        <BackButton />
       </div>
 
-      <div
-        className={`inline-block max-w-full rounded-2xl px-5 py-3 shadow-md ${
-          msg.sender === "You"
-            ? "bg-blue-600 text-white"
-            : "border border-gray-200 bg-white text-gray-900"
-        }`}
-      >
-       
-        <div className="prose prose-sm max-w-none prose-headings:text-slate-900 prose-p:text-slate-700 prose-li:text-slate-700 prose-code:text-pink-600">
-        <ReactMarkdown
-          remarkPlugins={[remarkGfm]}
-          components={{
-            code({ className, children, ...props }) {
-              const match = /language-(\w+)/.exec(className || "");
+      <div className="mx-auto flex h-[88vh] max-w-7xl gap-8">
+        {/* Sidebar */}
+        <ChatSidebar
+        sessions={sessions}
+        onDeleteClick={(chat) => {
+          console.log("AIChat received:", chat);
+          setSelectedChat(chat);
+        }}
+      />
 
-              return match ? (
-                <SyntaxHighlighter
-                  style={oneDark as any}
-                  language={match[1]}
-                  PreTag="div"
-                >
-                  {String(children).replace(/\n$/, "")}
-                </SyntaxHighlighter>
-              ) : (
-                <code
-                    className="rounded bg-gray-200 px-1 py-0.5 text-pink-600"
-                  >
-                  {children}
-                </code>
-              );
-            },
-          }}
-        >
-          {msg.text}
-        </ReactMarkdown>
-      </div>
-      </div>
-    </div>
-  </div>
-))}
+        {/* Chat Window */}
+        <div className="flex flex-1 flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/10 shadow-2xl backdrop-blur-2xl">
+          {/* Header */}
+          <ChatHeader />
 
-          {/* Loading */}
-          {loading && (
-          <div className="mb-6 flex justify-start">
-            <div className="flex items-end gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 text-white shadow-md">
-                🤖
-              </div>
-
-              <div className="flex items-center gap-1 rounded-2xl border border-gray-200 bg-white px-5 py-4 shadow-md">
-                <span className="h-2 w-2 animate-bounce rounded-full bg-gray-500"></span>
-                <span
-                  className="h-2 w-2 animate-bounce rounded-full bg-gray-500"
-                  style={{ animationDelay: "0.2s" }}
-                ></span>
-                <span
-                  className="h-2 w-2 animate-bounce rounded-full bg-gray-500"
-                  style={{ animationDelay: "0.4s" }}
-                ></span>
-              </div>
-            </div>
-          </div>
-        )}
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* Input */}
-        <div className="flex gap-4">
-          <input
-            type="text"
-            placeholder="Ask your AI Mentor..."
-            value={message}
-            disabled={loading}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                sendMessage();
-              }
-            }}
-            className="flex-1 rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder:text-gray-500 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
+          {/* Messages */}
+          <ChatMessages
+            chat={chat}
+            loading={loading}
+            messagesEndRef={messagesEndRef}
           />
-
-          <button
-            onClick={sendMessage}
-            disabled={loading}
-            className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400"
-          >
-            {loading ? "Thinking..." : "Send"}
-          </button>
+          {/* Input */}
+          <ChatInput
+            message={message}
+            loading={loading}
+            setMessage={setMessage}
+            sendMessage={sendMessage}
+          />
         </div>
       </div>
     </section>
-  );
+
+    <DeleteChatModal
+      open={selectedChat !== null}
+      title={selectedChat?.title ?? ""}
+      onCancel={() => setSelectedChat(null)}
+      onConfirm={() => {
+        if (selectedChat) {
+          handleDelete(selectedChat.id);
+        }
+        setSelectedChat(null);
+      }}
+    />
+  </>
+);
 }

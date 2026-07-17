@@ -16,7 +16,7 @@ export default function BackButton() {
   return (
     <button
       onClick={handleBack}
-      className="group inline-flex items-center gap-2 rounded-2xl border border-slate-200/80 bg-white/90 px-5 py-3 font-semibold text-slate-700 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-x-1 hover:border-cyan-500 hover:bg-cyan-500 hover:text-white hover:shadow-cyan-200"
+      className="rounded-2xl border border-white/10 bg-white/10 px-5 py-3 text-white backdrop-blur-xl transition hover:bg-white/20"
     >
       <span className="text-lg transition-transform duration-300 group-hover:-translate-x-1">
         ←

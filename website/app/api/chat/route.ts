@@ -1,4 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY!,
@@ -6,8 +7,29 @@ const ai = new GoogleGenAI({
 
 export async function POST(req: Request) {
   try {
-    const { message, history = [] } = await req.json();
+    const {
+      message,
+      history = [],
+      sessionId,
+    } = await req.json();
+    
+    let currentSessionId = sessionId;
 
+if (!currentSessionId) {
+  const { data, error } = await supabaseAdmin
+    .from("chat_sessions")
+    .insert({
+      title: message.slice(0, 40),
+    })
+    .select("id")
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  currentSessionId = data.id;
+}
     const response = await ai.models.generateContent({
         model: "models/gemini-3-flash-preview",
 
@@ -35,15 +57,49 @@ export async function POST(req: Request) {
         .map((msg: { sender: string; text: string }) => `${msg.sender}: ${msg.text}`)
         .join("\n")}
 
+
       User Question:
 
       ${message}
       `,
       });
 
-    return Response.json({
-      reply: response.text,
-    });
+    await supabaseAdmin.from("chat_history").insert({
+  user_message: message,
+  ai_response: response.text,
+});
+
+await supabaseAdmin.from("chat_messages").insert([
+  {
+    session_id: currentSessionId,
+    sender: "You",
+    message,
+  },
+  {
+    session_id: currentSessionId,
+    sender: "AI",
+    message: response.text,
+  },
+]);
+
+return Response.json({
+  reply: response.text,
+  sessionId: currentSessionId,
+});
+const data = await res.json();
+
+if (!sessionId && data.sessionId) {
+  setSessionId(data.sessionId);
+  loadSessions();
+}
+
+setChat((prev) => [
+  ...prev,
+  {
+    sender: "AI",
+    text: data.reply,
+  },
+]);
   } catch (error) {
     console.error("Gemini Error:", error);
 
