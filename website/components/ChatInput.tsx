@@ -29,9 +29,9 @@ export default function ChatInput({
         />
 
         <button
-  onClick={sendMessage}
-  disabled={loading}
-  className="flex min-w-[120px] items-center justify-center rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-4 font-semibold text-white transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-70"
+        onClick={sendMessage}
+        disabled={loading}
+        className="flex min-w-[120px] items-center justify-center rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-4 font-semibold text-white transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-70"
 >
             {loading ? (
                 <div className="flex items-center gap-1">

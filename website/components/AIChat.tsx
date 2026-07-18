@@ -7,6 +7,7 @@ import ChatSidebar from "@/components/ChatSidebar";
 import ChatHeader from "@/components/ChatHeader";
 import ChatMessages from "@/components/ChatMessages";
 import ChatInput from "@/components/ChatInput";
+import { toast } from "sonner";
 
 type ChatMessage = {
   sender: "AI" | "You";
@@ -27,7 +28,7 @@ export default function AIChat() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [selectedChat, setSelectedChat] =
   useState<ChatSession | null>(null);
-
+  const [chatLoading, setChatLoading] = useState(false);
   const [chat, setChat] = useState<ChatMessage[]>([
     {
       sender: "AI",
@@ -51,17 +52,44 @@ export default function AIChat() {
     try {
       const res = await fetch("/api/chat/sessions");
       const data = await res.json();
-
+      console.log(data);
       setSessions(data);
     } catch (err) {
       console.error(err);
     }
   }
+ async function loadChat(session: ChatSession) {
+  setChatLoading(true);
 
+  try {
+    const res = await fetch(`/api/chat/${session.id}`);
+
+    if (!res.ok) {
+      throw new Error("Failed to load chat");
+    }
+
+    const data = await res.json();
+
+    setSessionId(session.id);
+
+    setChat(
+      data.map((msg: any) => ({
+        sender: msg.sender,
+        text: msg.message,
+      }))
+    );
+    setChatLoading(false);
+  } catch (err) {
+  console.error(err);
+  setChatLoading(false);
+}
+}
   async function sendMessage() {
   if (!message.trim() || loading) return;
 
   const userMessage = message;
+  setLoading(true);
+  setMessage("");
 
   // Add user message
   setChat((prev) => [
@@ -134,26 +162,27 @@ export default function AIChat() {
             break;
 
           case "chunk":
-            setChat((prev) => {
-              const updated = [...prev];
+          setChat((prev) => {
+            const updated = [...prev];
 
-              for (let i = updated.length - 1; i >= 0; i--) {
-                if (updated[i].sender === "AI") {
-                  updated[i] = {
-                    ...updated[i],
-                    text: updated[i].text + data.text,
-                  };
-                  break;
-                }
-              }
+            const lastIndex = updated
+              .map((m) => m.sender)
+              .lastIndexOf("AI");
 
-              return updated;
-            });
-            break;
+            if (lastIndex !== -1) {
+              updated[lastIndex] = {
+                ...updated[lastIndex],
+                text: updated[lastIndex].text + data.text,
+              };
+            }
 
-          case "done":
-            setLoading(false);
-            break;
+            return updated;
+          });
+          break;
+
+        case "done":
+          setLoading(false);
+          break;
         }
       }
     }
@@ -185,6 +214,8 @@ export default function AIChat() {
 
       setSessions((prev) => prev.filter((chat) => chat.id !== id));
 
+      toast.success("Conversation deleted");
+
       if (sessionId === id) {
         setSessionId(null);
 
@@ -197,7 +228,7 @@ export default function AIChat() {
       }
     } catch (error) {
       console.error(error);
-      alert("Failed to delete chat.");
+      toast.error("Failed to delete chat");
     }
   }
 
@@ -212,8 +243,19 @@ export default function AIChat() {
         {/* Sidebar */}
         <ChatSidebar
         sessions={sessions}
+        activeChatId={sessionId}
+        onChatClick={loadChat}
+        onNewChat={() => {
+          setSessionId(null);
+
+          setChat([
+            {
+              sender: "AI",
+              text: "👋 Hello Balaji! I'm your AI Mentor. How can I help you today?",
+            },
+          ]);
+        }}
         onDeleteClick={(chat) => {
-          console.log("AIChat received:", chat);
           setSelectedChat(chat);
         }}
       />
@@ -225,10 +267,10 @@ export default function AIChat() {
 
           {/* Messages */}
           <ChatMessages
-            chat={chat}
-            loading={loading}
-            messagesEndRef={messagesEndRef}
-          />
+          chat={chat}
+          chatLoading={chatLoading}
+          messagesEndRef={messagesEndRef}
+        />
           {/* Input */}
           <ChatInput
             message={message}

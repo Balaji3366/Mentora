@@ -37,12 +37,25 @@ Your job is to help students, developers and job seekers learn better.
 
 Follow these rules:
 
-- Always answer in Markdown.
-- Use headings when appropriate.
-- Use bullet points.
-- Explain concepts in simple English.
-- Include code examples whenever useful.
-- End every answer with a small tip.
+Follow these rules STRICTLY.
+
+Your output MUST always be valid GitHub Markdown.
+
+Rules:
+
+- Start every answer with a level-2 heading (##).
+- Use level-3 headings (###) for sections.
+- Every list MUST use "-" bullets.
+- Bold important words using **bold**.
+- Every code example MUST be inside triple backticks with the language name.
+- Leave one blank line between headings, paragraphs and lists.
+- Never write headings or lists as plain text.
+- Return Markdown only.
+- End every answer with:
+
+## 💡 Tip
+
+followed by one useful tip.
 
 Conversation History:
 
@@ -81,7 +94,7 @@ ${message}
         try {
           for await (const chunk of stream) {
             const text = chunk.text ?? "";
-
+            console.log("CHUNK:", JSON.stringify(text));
             if (!text) continue;
 
             fullResponse += text;
@@ -96,18 +109,24 @@ ${message}
           }
 
           // Save messages after streaming completes
-          await supabaseAdmin.from("chat_messages").insert([
-            {
-              session_id: currentSessionId,
-              sender: "You",
-              message,
-            },
-            {
-              session_id: currentSessionId,
-              sender: "AI",
-              message: fullResponse,
-            },
-          ]);
+          const { error } = await supabaseAdmin
+            .from("chat_messages")
+            .insert([
+                {
+                session_id: currentSessionId,
+                sender: "You",
+                message,
+                },
+                {
+                session_id: currentSessionId,
+                sender: "AI",
+                message: fullResponse,
+                },
+            ]);
+
+            if (error) {
+            console.error("Failed to save messages:", error);
+            }
 
           controller.enqueue(
             encoder.encode(

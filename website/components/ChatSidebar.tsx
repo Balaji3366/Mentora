@@ -11,19 +11,28 @@ type ChatSession = {
 type Props = {
   sessions: ChatSession[];
   onDeleteClick: (chat: ChatSession) => void;
+  onChatClick: (chat: ChatSession) => void;
+  onNewChat: () => void;
+  activeChatId: string | null;
 };
 
 export default function ChatSidebar({
   sessions,
   onDeleteClick,
+  onChatClick,
+  onNewChat,
+  activeChatId,
 }: Props) {
   return (
     <aside className="flex h-full w-80 flex-col rounded-3xl border border-white/10 bg-white/10 p-5 shadow-2xl backdrop-blur-2xl">
 
       {/* New Chat */}
-      <button className="mb-6 w-full rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 py-3 font-semibold text-white transition hover:scale-[1.02]">
+      <button
+        onClick={onNewChat}
+        className="mb-6 w-full rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 py-3 font-semibold text-white transition hover:scale-[1.02]"
+        >
         + New Chat
-      </button>
+        </button>
 
       {/* Heading */}
       <h3 className="mb-4 text-xl font-bold text-white">
@@ -42,8 +51,14 @@ export default function ChatSidebar({
         ) : (
           sessions.map((session) => (
             <button
-              key={session.id}
-              className="w-full rounded-2xl border border-white/10 bg-white/5 p-4 text-left transition-all duration-300 hover:border-purple-500 hover:bg-white/10"
+            key={session.id}
+            onClick={() => onChatClick(session)}
+            className={`w-full rounded-2xl p-4 text-left transition-all duration-300
+            ${
+            activeChatId === session.id
+                ? "border border-purple-500 bg-purple-500/20 shadow-lg shadow-purple-500/20"
+                : "border border-white/10 bg-white/5 hover:border-purple-500 hover:bg-white/10"
+            }`}
             >
               <div className="flex items-center justify-between">
                 <span className="truncate text-sm font-semibold text-white">
