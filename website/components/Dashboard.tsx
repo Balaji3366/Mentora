@@ -39,12 +39,13 @@ if (documentError) {
   return (
     <section
       id="dashboard"
-      className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-100 pt-40 pb-24"
+      className="relative min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-100 pt-40 pb-24"
     >
-      <div className="mx-auto max-w-7xl px-6">
-        <div className="mb-8">
-         <BackButton />
+      <div className="absolute left-6 top-6">
+          <BackButton variant="light" />
         </div>
+
+        <div className="mx-auto max-w-7xl px-6">
 
         {/* Heading */}
         <div className="mb-14 text-center animate-in fade-in duration-700">

@@ -1,7 +1,7 @@
 "use client";
 
 import ReactMarkdown from "react-markdown";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 
 interface AIWorkspaceProps {
   summary: string;

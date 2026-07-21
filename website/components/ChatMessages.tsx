@@ -2,11 +2,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
-
-type ChatMessage = {
-  sender: "AI" | "You";
-  text: string;
-};
+import { ChatMessage } from "@/types/chat";
 
 type Props = {
   chat: ChatMessage[];
@@ -90,7 +86,7 @@ export default function ChatMessages({
       style={{ animationDelay: "0.3s" }}
     ></div>
 
-    <span className="ml-2">Mentora is thinking...</span>
+    <span className="ml-2">Analyzing...</span>
   </div>
 ) : (
   <ReactMarkdown

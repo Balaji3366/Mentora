@@ -26,7 +26,16 @@ export default function useChat() {
       text: "👋 Hello Balaji! I'm your AI Mentor. How can I help you today?",
     },
   ]);
-
+  async function loadSessions() {
+    try {
+      const res = await fetch("/api/chat/sessions");
+      const data = await res.json();
+      console.log(data);
+      setSessions(data);
+    } catch (err) {
+      console.error(err);
+    }
+  }
   return {
     message,
     setMessage,
@@ -42,5 +51,7 @@ export default function useChat() {
 
     sessionId,
     setSessionId,
+
+    loadSessions,
   };
 }

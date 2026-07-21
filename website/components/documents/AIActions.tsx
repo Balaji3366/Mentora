@@ -1,10 +1,10 @@
 "use client";
 
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 
 interface AIActionsProps {
   selectedFile: string;
-
+  scrollToWorkspace: () => void;
   summary: string;
   setSummary: (value: string) => void;
   loadingSummary: boolean;
@@ -30,7 +30,7 @@ interface AIActionsProps {
 
 export default function AIActions({
   selectedFile,
-
+  scrollToWorkspace,
   setSummary,
   loadingSummary,
   setLoadingSummary,
@@ -50,12 +50,17 @@ export default function AIActions({
   setLoadingInterview,
 }: AIActionsProps) {
   const checkFile = () => {
-    if (!selectedFile) {
-      toast.error("Please select a document first.");
-      return false;
-    }
-    return true;
-  };
+  console.log("selectedFile:", selectedFile);
+
+  if (!selectedFile || selectedFile.trim() === "") {
+    console.log("No file selected");
+    toast.error("Please select a document first.");
+    return false;
+  }
+
+  console.log("Selected:", selectedFile);
+  return true;
+};
 
   const summarizeDocument = async () => {
     if (!checkFile()) return;
@@ -64,6 +69,7 @@ export default function AIActions({
     setQuiz("");
     setInterview("");
     setLoadingSummary(true);
+    scrollToWorkspace();
 
     try {
       const res = await fetch("/api/summarize", {
@@ -99,7 +105,7 @@ export default function AIActions({
     setQuiz("");
     setInterview("");
     setLoadingAnswer(true);
-
+    scrollToWorkspace();
     try {
       const res = await fetch("/api/pdf-chat", {
         method: "POST",
@@ -129,7 +135,7 @@ export default function AIActions({
     setQuiz("");
     setInterview("");
     setLoadingQuiz(true);
-
+    scrollToWorkspace();
     try {
       const res = await fetch("/api/quiz", {
         method: "POST",
@@ -158,6 +164,7 @@ export default function AIActions({
     setQuiz("");
     setInterview("");
     setLoadingInterview(true);
+    scrollToWorkspace();
 
     try {
       const res = await fetch("/api/interview", {

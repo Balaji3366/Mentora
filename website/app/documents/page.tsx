@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import UploadCard from "@/components/documents/UploadCard";
 import RecentFiles from "@/components/documents/RecentFiles";
 import AIActions from "@/components/documents/AIActions";
 import AIWorkspace from "@/components/documents/AIWorkspace";
-import BackButton from "@/components/BackButton";
+import PageLayout from "@/components/PageLayout";
 
 export default function DocumentsPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -96,75 +96,78 @@ useEffect(() => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <div className="mx-auto max-w-7xl">
+  <PageLayout>
+    <div className="mx-auto max-w-7xl pt-16">
 
-        <div className="mb-8">
-          <BackButton />
-        </div>
+      {/* Back Button */}
+      
 
+      {/* Page Header */}
+      <div className="mb-8">
         <h1 className="mb-2 text-4xl font-bold text-gray-900">
           📄 AI Document Workspace
         </h1>
-         
-        <p className="mb-8 text-gray-600">
-        Upload any PDF and instantly generate summaries, answers, quizzes, and interview questions using AI.
-      </p>
 
-       <div className="grid gap-8 lg:grid-cols-12">
-
-  <UploadCard
-    file={file}
-    setFile={setFile}
-    uploading={uploading}
-    uploadSuccess={uploadSuccess}
-    uploadFile={uploadFile}
-  />
-
-  <RecentFiles
-    files={files}
-    selectedFile={selectedFile}
-    setSelectedFile={setSelectedFile}
-    setSummary={setSummary}
-  />
-
-  <AIActions
-    selectedFile={selectedFile}
-    summary={summary}
-    setSummary={setSummary}
-    loadingSummary={loadingSummary}
-    setLoadingSummary={setLoadingSummary}
-    question={question}
-    setQuestion={setQuestion}
-    answer={answer}
-    setAnswer={setAnswer}
-    loadingAnswer={loadingAnswer}
-    setLoadingAnswer={setLoadingAnswer}
-    quiz={quiz}
-    setQuiz={setQuiz}
-    loadingQuiz={loadingQuiz}
-    setLoadingQuiz={setLoadingQuiz}
-    interview={interview}
-    setInterview={setInterview}
-    loadingInterview={loadingInterview}
-    setLoadingInterview={setLoadingInterview}
-  />
-
-</div>
-
-<div ref={workspaceRef} className="mt-8">
-  <AIWorkspace
-    summary={summary}
-    answer={answer}
-    quiz={quiz}
-    interview={interview}
-    loadingSummary={loadingSummary}
-    loadingAnswer={loadingAnswer}
-    loadingQuiz={loadingQuiz}
-    loadingInterview={loadingInterview}
-  />
-</div>
+        <p className="text-gray-600">
+          Upload any PDF and instantly generate summaries, answers, quizzes,
+          and interview questions using AI.
+        </p>
       </div>
+
+      <div className="grid gap-8 lg:grid-cols-12">
+        <UploadCard
+          file={file}
+          setFile={setFile}
+          uploading={uploading}
+          uploadSuccess={uploadSuccess}
+          uploadFile={uploadFile}
+        />
+
+        <RecentFiles
+          files={files}
+          selectedFile={selectedFile}
+          setSelectedFile={setSelectedFile}
+          setSummary={setSummary}
+        />
+
+        <AIActions
+          selectedFile={selectedFile}
+          scrollToWorkspace={scrollToWorkspace}
+          summary={summary}
+          setSummary={setSummary}
+          loadingSummary={loadingSummary}
+          setLoadingSummary={setLoadingSummary}
+          question={question}
+          setQuestion={setQuestion}
+          answer={answer}
+          setAnswer={setAnswer}
+          loadingAnswer={loadingAnswer}
+          setLoadingAnswer={setLoadingAnswer}
+          quiz={quiz}
+          setQuiz={setQuiz}
+          loadingQuiz={loadingQuiz}
+          setLoadingQuiz={setLoadingQuiz}
+          interview={interview}
+          setInterview={setInterview}
+          loadingInterview={loadingInterview}
+          setLoadingInterview={setLoadingInterview}
+        />
+      </div>
+
+      <div ref={workspaceRef} className="mt-8">
+        <AIWorkspace
+          summary={summary}
+          answer={answer}
+          quiz={quiz}
+          interview={interview}
+          loadingSummary={loadingSummary}
+          loadingAnswer={loadingAnswer}
+          loadingQuiz={loadingQuiz}
+          loadingInterview={loadingInterview}
+        />
+      </div>
+
     </div>
-  );
+  </PageLayout>
+);
 }

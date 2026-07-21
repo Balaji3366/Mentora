@@ -8,34 +8,26 @@ import ChatHeader from "@/components/ChatHeader";
 import ChatMessages from "@/components/ChatMessages";
 import ChatInput from "@/components/ChatInput";
 import { toast } from "sonner";
+import { ChatMessage, ChatSession } from "@/types/chat";
+import { DEFAULT_CHAT } from "@/constants/chat";
 
-type ChatMessage = {
-  sender: "AI" | "You";
-  text: string;
-};
 
-type ChatSession = {
-  id: string;
-  title: string;
-  created_at: string;
-};
 
 export default function AIChat() {
+
+  const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const [sessions, setSessions] = useState<ChatSession[]>([]);
+  
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [selectedChat, setSelectedChat] =
   useState<ChatSession | null>(null);
+  
+  
   const [chatLoading, setChatLoading] = useState(false);
-  const [chat, setChat] = useState<ChatMessage[]>([
-    {
-      sender: "AI",
-      text: "👋 Hello Balaji! I'm your AI Mentor. How can I help you today?",
-    },
-  ]);
-
+  const [chat, setChat] = useState<ChatMessage[]>(DEFAULT_CHAT);
+  
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -47,17 +39,16 @@ export default function AIChat() {
       behavior: "smooth",
     });
   }, [chat, loading]);
+ async function loadSessions() {
+  try {
+    const res = await fetch("/api/chat/sessions");
+    const data = await res.json();
 
-  async function loadSessions() {
-    try {
-      const res = await fetch("/api/chat/sessions");
-      const data = await res.json();
-      console.log(data);
-      setSessions(data);
-    } catch (err) {
-      console.error(err);
-    }
+    setSessions(data);
+  } catch (err) {
+    console.error(err);
   }
+}
  async function loadChat(session: ChatSession) {
   setChatLoading(true);
 
@@ -160,8 +151,9 @@ export default function AIChat() {
               loadSessions();
             }
             break;
-
+            
           case "chunk":
+          
           setChat((prev) => {
             const updated = [...prev];
 
@@ -181,8 +173,9 @@ export default function AIChat() {
           break;
 
         case "done":
-          setLoading(false);
-          break;
+        
+        setLoading(false);
+        break;
         }
       }
     }
@@ -219,12 +212,7 @@ export default function AIChat() {
       if (sessionId === id) {
         setSessionId(null);
 
-        setChat([
-          {
-            sender: "AI",
-            text: "👋 Hello Balaji! I'm your AI Mentor. How can I help you today?",
-          },
-        ]);
+        setChat(DEFAULT_CHAT);
       }
     } catch (error) {
       console.error(error);
@@ -234,9 +222,9 @@ export default function AIChat() {
 
   return (
   <>
-    <section className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-purple-950 px-8 py-8">
+    <section className="min-h-screen bg-gradient-to-br from-black via-[#1A103D] to-[#4C1D95] px-8 py-8">
       <div className="mb-6">
-        <BackButton />
+        <BackButton variant="dark" />
       </div>
 
       <div className="mx-auto flex h-[88vh] max-w-7xl gap-8">
@@ -248,12 +236,7 @@ export default function AIChat() {
         onNewChat={() => {
           setSessionId(null);
 
-          setChat([
-            {
-              sender: "AI",
-              text: "👋 Hello Balaji! I'm your AI Mentor. How can I help you today?",
-            },
-          ]);
+          setChat(DEFAULT_CHAT);
         }}
         onDeleteClick={(chat) => {
           setSelectedChat(chat);

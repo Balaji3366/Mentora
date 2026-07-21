@@ -1,12 +1,5 @@
 import { Trash2 } from "lucide-react";
-
-
-
-type ChatSession = {
-  id: string;
-  title: string;
-  created_at: string;
-};
+import { ChatSession } from "@/types/chat";
 
 type Props = {
   sessions: ChatSession[];
